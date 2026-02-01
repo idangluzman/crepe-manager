@@ -50,6 +50,9 @@ rankings.
 
 - `crepeTypes` (Map): Key-value pairs of
   `{ name: String, imageUrl: String (URL from Cloud Storage) }`.
+- `classOptions` (Array of Strings): List of available class IDs for student registration
+  (e.g., `["5a", "5b", "6", "7", "8", "9", "10", "11", "12", "13"]`).
+  <!-- Admin edits this list directly via Firebase Console -->
 
 ### **Security Rules**
 
