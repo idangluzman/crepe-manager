@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(cd:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "mcp__plugin_firebase_firebase__firebase_get_environment"
     ]
   },
   "enableAllProjectMcpServers": true,
