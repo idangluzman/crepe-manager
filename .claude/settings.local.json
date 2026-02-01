@@ -3,7 +3,8 @@
     "allow": [
       "Bash(cd:*)",
       "Bash(tree:*)",
-      "mcp__plugin_firebase_firebase__firebase_get_environment"
+      "mcp__plugin_firebase_firebase__firebase_get_environment",
+      "mcp__playwright__browser_click"
     ]
   },
   "enableAllProjectMcpServers": true,
