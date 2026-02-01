@@ -51,6 +51,29 @@ rankings.
 - `crepeTypes` (Map): Key-value pairs of
   `{ name: String, imageUrl: String (URL from Cloud Storage) }`.
 
+### **Security Rules**
+
+#### Firestore Rules
+
+| Collection       | Anonymous (no auth) | Authenticated (Admin) |
+| ---------------- | ------------------- | --------------------- |
+| `Students`       | read                | read + write          |
+| `DailyReports`   | —                   | read + write          |
+| `Settings`       | —                   | read only             |
+
+- `Students` is publicly readable so unauthenticated users can view the leaderboard.
+- `DailyReports` and `Settings` require authentication for any access.
+- `Settings` writes are fully denied — managed directly via Firebase Console.
+
+#### Storage Rules
+
+| Path                    | Anonymous (no auth) | Authenticated (Admin) |
+| ----------------------- | ------------------- | --------------------- |
+| `/crepe-images/**`      | —                   | read only             |
+
+- Crepe type images are stored under `/crepe-images/` in Cloud Storage.
+- Only authenticated users can read images. Writes are fully denied — images are uploaded directly via Firebase Console.
+
 ---
 
 ## 5. Key Functional Modules
