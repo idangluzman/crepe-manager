@@ -4,6 +4,7 @@ import { useSettings } from "../../hooks/useSettings";
 import { recordSale } from "../../services/salesService";
 import { StudentAutocomplete } from "./StudentAutocomplete";
 import { CrepeGrid } from "./CrepeGrid";
+import type { CrepeSelection } from "./CrepeGrid";
 import { Toast } from "../ui/Toast";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import type { Student } from "../../types";
@@ -12,26 +13,36 @@ export function SalesForm() {
   const { students, loading: studentsLoading } = useStudents();
   const { settings, loading: settingsLoading } = useSettings();
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [selectedCrepe, setSelectedCrepe] = useState<string | null>(null);
+  const [crepeSelection, setCrepeSelection] = useState<CrepeSelection>({});
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const handleDismissToast = useCallback(() => setToast(null), []);
 
+  const totalCrepes = Object.values(crepeSelection).reduce((sum, qty) => sum + qty, 0);
+  const hasSelection = totalCrepes > 0;
+
   if (studentsLoading || settingsLoading) return <LoadingSpinner />;
 
   async function handleConfirm() {
-    if (!selectedStudent || !selectedCrepe || !settings) return;
+    if (!selectedStudent || !hasSelection || !settings) return;
     setSubmitting(true);
     try {
-      await recordSale(selectedStudent.id, selectedCrepe);
-      const crepeName = settings.crepeTypes[selectedCrepe]?.name ?? selectedCrepe;
+      await recordSale(selectedStudent.id, crepeSelection);
+
+      const names = Object.entries(crepeSelection)
+        .map(([key, qty]) => {
+          const name = settings.crepeTypes[key]?.name ?? key;
+          return `${qty}x ${name}`;
+        })
+        .join(", ");
+
       setToast({
-        message: `Sold ${crepeName} to ${selectedStudent.name}!`,
+        message: `Sold ${names} to ${selectedStudent.name}!`,
         type: "success",
       });
       setSelectedStudent(null);
-      setSelectedCrepe(null);
+      setCrepeSelection({});
     } catch {
       setToast({ message: "Failed to record sale. Try again.", type: "error" });
     } finally {
@@ -61,7 +72,7 @@ export function SalesForm() {
           <button
             onClick={() => {
               setSelectedStudent(null);
-              setSelectedCrepe(null);
+              setCrepeSelection({});
             }}
             className="text-sm text-chocolate-light/50 hover:text-chocolate transition-colors"
           >
@@ -70,17 +81,17 @@ export function SalesForm() {
         </div>
       )}
 
-      {/* Step 2: Select crepe */}
+      {/* Step 2: Select crepe types & quantities */}
       {selectedStudent && settings && (
         <CrepeGrid
           crepeTypes={settings.crepeTypes}
-          selectedKey={selectedCrepe}
-          onSelect={setSelectedCrepe}
+          selection={crepeSelection}
+          onSelectionChange={setCrepeSelection}
         />
       )}
 
       {/* Step 3: Confirm */}
-      {selectedStudent && selectedCrepe && (
+      {selectedStudent && hasSelection && (
         <button
           onClick={handleConfirm}
           disabled={submitting}
@@ -90,7 +101,9 @@ export function SalesForm() {
               : "bg-accent-orange hover:bg-accent-orange-light active:scale-[0.98] shadow-lg"
           }`}
         >
-          {submitting ? "Recording..." : "Confirm Sale"}
+          {submitting
+            ? "Recording..."
+            : `Confirm Sale (${totalCrepes} crepe${totalCrepes !== 1 ? "s" : ""})`}
         </button>
       )}
 

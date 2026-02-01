@@ -1,4 +1,4 @@
-import { doc, writeBatch, increment, getDoc, setDoc } from "firebase/firestore";
+import { doc, writeBatch, increment } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
 function getTodayString(): string {
@@ -6,24 +6,32 @@ function getTodayString(): string {
   return now.toISOString().split("T")[0]; // "YYYY-MM-DD"
 }
 
-export async function recordSale(studentId: string, crepeTypeKey: string): Promise<void> {
+/**
+ * Records a sale by atomically updating the student's totalCount
+ * and the daily report's salesMap for each crepe type.
+ * @param items - Map of crepeTypeKey to quantity purchased
+ */
+export async function recordSale(
+  studentId: string,
+  items: Record<string, number>,
+): Promise<void> {
+  const totalCrepes = Object.values(items).reduce((sum, qty) => sum + qty, 0);
+  if (totalCrepes <= 0) return;
+
   const batch = writeBatch(db);
   const today = getTodayString();
 
-  // Increment student's totalCount
+  // Increment student's totalCount by total crepes purchased
   const studentRef = doc(db, "Students", studentId);
-  batch.update(studentRef, { totalCount: increment(1) });
+  batch.update(studentRef, { totalCount: increment(totalCrepes) });
 
-  // Increment daily report's salesMap for this crepe type
+  // Ensure daily report document exists then increment each crepe type
   const reportRef = doc(db, "DailyReports", today);
-  const reportSnap = await getDoc(reportRef);
-
-  if (reportSnap.exists()) {
-    batch.update(reportRef, { [`salesMap.${crepeTypeKey}`]: increment(1) });
-  } else {
-    // Create the daily report first, then update via batch
-    await setDoc(reportRef, { date: today, salesMap: {} });
-    batch.update(reportRef, { [`salesMap.${crepeTypeKey}`]: increment(1) });
+  batch.set(reportRef, { date: today, salesMap: {} }, { merge: true });
+  for (const [crepeTypeKey, qty] of Object.entries(items)) {
+    if (qty > 0) {
+      batch.update(reportRef, { [`salesMap.${crepeTypeKey}`]: increment(qty) });
+    }
   }
 
   await batch.commit();

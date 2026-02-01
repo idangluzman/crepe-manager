@@ -12,7 +12,7 @@ export interface CrepeType {
 
 export interface Settings {
   crepeTypes: Record<string, CrepeType>;
-  classes?: string[];
+  classes: string[];
 }
 
 export interface DailyReport {
