@@ -3,10 +3,13 @@ import { useAuth } from "../../context/AuthContext";
 import { LoginButton } from "./LoginButton";
 import { SalesForm } from "./SalesForm";
 import { DailyReportView } from "./DailyReportView";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
 
 export function AdminPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [reportOpen, setReportOpen] = useState(false);
+
+  if (loading) return <LoadingSpinner />;
 
   if (!user) {
     return (

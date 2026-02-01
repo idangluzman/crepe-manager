@@ -3,7 +3,6 @@ import { AuthProvider } from "./context/AuthContext";
 import { AppShell } from "./components/layout/AppShell";
 import { LeaderboardPage } from "./components/leaderboard/LeaderboardPage";
 import { AdminPage } from "./components/admin/AdminPage";
-import { ProtectedRoute } from "./components/ui/ProtectedRoute";
 
 export default function App() {
   return (
@@ -12,14 +11,7 @@ export default function App() {
         <Routes>
           <Route element={<AppShell />}>
             <Route index element={<LeaderboardPage />} />
-            <Route
-              path="admin"
-              element={
-                <ProtectedRoute>
-                  <AdminPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="admin" element={<AdminPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
