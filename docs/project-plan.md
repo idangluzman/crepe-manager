@@ -10,7 +10,7 @@ rankings.
 ## 2. User Roles & Permissions
 
 - **Admin (The Seller):**
-- Authenticates via Google Login.
+- Authenticates via Email/Password login (pre-configured in Firebase Console).
 - Authorized to log sales, add new students, and view daily inventory reports.
 
 - **User (The Student):**
@@ -22,10 +22,11 @@ rankings.
 ## 3. Technical Stack
 
 - **Frontend:** React (State management via Hooks).
-- **Styling:** Responsive HTML/CSS (Mobile-first design).
+- **Styling:** Tailwind CSS v4 (Mobile-first design, Vite plugin).
 - **Database:** Firebase Firestore.
 - **Storage:** Firebase Cloud Storage (For crepe menu images).
-- **Authentication:** Firebase Auth (Google Provider).
+- **Authentication:** Firebase Auth (Email/Password provider).
+- **Routing:** React Router DOM.
 
 ---
 
@@ -91,8 +92,8 @@ rankings.
    crepe images to Cloud Storage and link them in the `Settings` collection.
 3. **Phase 3: Leaderboard View** - Build the React frontend to fetch and display student and class
    rankings.
-4. **Phase 4: Admin Auth** - Implement Google Sign-In and restrict write access to specified Admin
-   UIDs within Firestore Rules.
+4. **Phase 4: Admin Auth** - Implement Email/Password sign-in (admin user pre-configured in Firebase
+   Console) and restrict write access to authenticated users within Firestore Rules.
 5. **Phase 5: Sales Form** - Develop the Autocomplete search and the Batched Write logic for
    recording sales.
 6. **Phase 6: Refinement** - Add loading states, CSS transitions, and final mobile responsiveness
