@@ -1,10 +1,19 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Keep your replies extremely concise and focus on conveying the key information. No unnecessary
+fluff, no long code snippets.
+
+We're building the app described in @docs/project-plan.md. Read that file for general architectural
+tasks or to double-check the exact database structure, tech stack or application architecture.
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this
+repository.
 
 ## Project Overview
 
-Crepe Manager is a mobile-first web app for tracking a school crepe-selling competition. It has two user roles: an Admin (authenticates via Google, records sales, manages students) and public Users (view-only leaderboard access). See `docs/project-plan.md` for the full MVP specification.
+Crepe Manager is a mobile-first web app for tracking a school crepe-selling competition. It has two
+user roles: an Admin (authenticates via Google, records sales, manages students) and public Users
+(view-only leaderboard access). See `docs/project-plan.md` for the full MVP specification.
 
 ## Commands
 
@@ -26,21 +35,25 @@ No test framework is configured yet.
 ## TypeScript Configuration
 
 - Target: ES2022, module: ESNext, moduleResolution: bundler
-- Strict mode with `noUnusedLocals`, `noUnusedParameters`, `erasableSyntaxOnly`, `noUncheckedSideEffectImports`
+- Strict mode with `noUnusedLocals`, `noUnusedParameters`, `erasableSyntaxOnly`,
+  `noUncheckedSideEffectImports`
 - Automatic JSX transform (`react-jsx`)
 
 ## Data Architecture (Firestore)
 
 Three collections:
+
 - **Students**: `name`, `class`, `totalCount` (cumulative crepes purchased)
 - **DailyReports**: `date` (string), `salesMap` (map of crepeType to count)
 - **Settings**: `crepeTypes` (map with `name` and `imageUrl` from Cloud Storage)
 
-Sales recording uses **batched writes** to atomically update both the student's `totalCount` and the day's `DailyReport`.
+Sales recording uses **batched writes** to atomically update both the student's `totalCount` and the
+day's `DailyReport`.
 
 ## Tool Usage
 
-- Always use the Context7 MCP server to fetch the latest documentation whenever asked about a specific library, API, or framework.
+- Always use the Context7 MCP server to fetch the latest documentation whenever asked about a
+  specific library, API, or framework.
 
 ## UI/UX Guidelines
 
