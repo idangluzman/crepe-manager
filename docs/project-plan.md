@@ -19,7 +19,63 @@ rankings.
 
 ---
 
-## 3. Technical Stack
+## 3. Architecture
+
+```
+ ┌────────────────────────────────────────────────────────┐
+ │                      CLIENTS                           │
+ │                                                        │
+ │   ┌──────────────────┐         ┌──────────────────┐    │
+ │   │  Admin (Seller)  │         │  User (Student)  │    │
+ │   │  - Record sales  │         │  - View rankings │    │
+ │   │  - Add students  │         │  (No login)      │    │
+ │   └────────┬─────────┘         └────────┬─────────┘    │
+ └────────────┼────────────────────────────┼──────────────┘
+              │                            │
+              ▼                            ▼
+ ┌────────────────────────────────────────────────────────┐
+ │              React App (Vite + Tailwind CSS)           │
+ │                                                        │
+ │   ┌──────────────┐  ┌────────────┐  ┌───────────────┐  │
+ │   │ Sales Form   │  │ Leaderboard│  │ Admin Auth    │  │
+ │   │ (Admin only) │  │ (Public)   │  │ (Login gate)  │  │
+ │   └──────┬───────┘  └─────┬──────┘  └──────┬────────┘  │
+ │          │                │                │           │
+ │          ▼                ▼                ▼           │
+ │   ┌─────────────────────────────────────────────────┐  │
+ │   │           Firebase SDK (JS Client)              │  │
+ │   └──────┬──────────────┬───────────────┬───────────┘  │
+ └──────────┼──────────────┼───────────────┼──────────────┘
+            │              │               │
+            ▼              ▼               ▼
+ ┌────────────────────────────────────────────────────────┐
+ │                  FIREBASE SERVICES                     │
+ │                                                        │
+ │  ┌──────────────┐ ┌───────────────┐ ┌───────────────┐  │
+ │  │  Firestore   │ │ Cloud Storage │ │ Firebase Auth │  │
+ │  │              │ │               │ │               │  │
+ │  │ - Students   │ │ /crepe-images │ │ Google OAuth  │  │
+ │  │ - DailyRpts  │ │ (menu imgs)   │ │ (Admin only)  │  │
+ │  │ - Settings   │ │               │ │               │  │
+ │  └──────────────┘ └───────────────┘ └───────────────┘  │
+ │                                                        │
+ │  ┌──────────────────────────────────────────────────┐  │
+ │  │            Security Rules                        │  │
+ │  │  Students: public read / auth write              │  │
+ │  │  DailyReports & Settings: auth only              │  │
+ │  │  Storage: auth read only                         │  │
+ │  └──────────────────────────────────────────────────┘  │
+ └────────────────────────────────────────────────────────┘
+
+ Data flow (sale):
+   Admin selects student + crepe type
+     → Batched write → Student.totalCount++
+                     → DailyReport.salesMap[type]++
+```
+
+---
+
+## 4. Technical Stack
 
 - **Frontend:** React (State management via Hooks).
 - **Styling:** Tailwind CSS v4 (Mobile-first design, Vite plugin).
@@ -50,19 +106,19 @@ rankings.
 
 - `crepeTypes` (Map): Key-value pairs of
   `{ name: String, imageUrl: String (URL from Cloud Storage) }`.
-- `classOptions` (Array of Strings): List of available class IDs for student registration
-  (e.g., `["5a", "5b", "6", "7", "8", "9", "10", "11", "12", "13"]`).
+- `classOptions` (Array of Strings): List of available class IDs for student registration (e.g.,
+  `["5a", "5b", "6", "7", "8", "9", "10", "11", "12", "13"]`).
   <!-- Admin edits this list directly via Firebase Console -->
 
 ### **Security Rules**
 
 #### Firestore Rules
 
-| Collection       | Anonymous (no auth) | Authenticated (Admin) |
-| ---------------- | ------------------- | --------------------- |
-| `Students`       | read                | read + write          |
-| `DailyReports`   | —                   | read + write          |
-| `Settings`       | —                   | read only             |
+| Collection     | Anonymous (no auth) | Authenticated (Admin) |
+| -------------- | ------------------- | --------------------- |
+| `Students`     | read                | read + write          |
+| `DailyReports` | —                   | read + write          |
+| `Settings`     | —                   | read only             |
 
 - `Students` is publicly readable so unauthenticated users can view the leaderboard.
 - `DailyReports` and `Settings` require authentication for any access.
@@ -70,12 +126,13 @@ rankings.
 
 #### Storage Rules
 
-| Path                    | Anonymous (no auth) | Authenticated (Admin) |
-| ----------------------- | ------------------- | --------------------- |
-| `/crepe-images/**`      | —                   | read only             |
+| Path               | Anonymous (no auth) | Authenticated (Admin) |
+| ------------------ | ------------------- | --------------------- |
+| `/crepe-images/**` | —                   | read only             |
 
 - Crepe type images are stored under `/crepe-images/` in Cloud Storage.
-- Only authenticated users can read images. Writes are fully denied — images are uploaded directly via Firebase Console.
+- Only authenticated users can read images. Writes are fully denied — images are uploaded directly
+  via Firebase Console.
 
 ---
 
